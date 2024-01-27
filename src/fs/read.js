@@ -1,5 +1,20 @@
+import {getPaths} from "./helpers/getPaths.js";
+import path from "path";
+import fs from "fs";
+import {throwError} from "./helpers/throw-error.js";
+
+const {__dirname} = getPaths(import.meta.url)
+
 const read = async () => {
-    // Write your code here 
+    const filePath = path.join(__dirname, 'files', 'fileToRead.txt')
+    fs.readFile(filePath, {encoding: 'utf8'}, (err, data) => {
+        if (err) {
+            throwError()
+        }
+        console.log(data)
+    })
 };
 
-await read();
+read()
+    .then(() => console.log('success'))
+    .catch(() => console.error('failed'));
