@@ -1,4 +1,4 @@
-import {getPaths} from "./helpers/getPaths.js";
+import {getPaths} from "./helpers/get-paths.js";
 import path from "path";
 import fs from "fs";
 import {throwError} from "./helpers/throw-error.js";
