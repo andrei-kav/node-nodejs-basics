@@ -26,6 +26,4 @@ const rename = async () => {
     })
 };
 
-rename()
-    .then(() => console.log('success'))
-    .catch(() => console.error('failed'));
+await rename();

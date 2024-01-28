@@ -18,6 +18,4 @@ const remove = async () => {
     })
 };
 
-remove()
-    .then(() => console.log('success'))
-    .catch(() => console.error('failed'));
+await remove();

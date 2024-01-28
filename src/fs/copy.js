@@ -27,6 +27,4 @@ const copy = async () => {
     })
 };
 
-copy()
-    .then(() => console.log('success'))
-    .catch(() => console.error('failed'));
+await copy();

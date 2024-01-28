@@ -16,6 +16,4 @@ const list = async () => {
     })
 };
 
-list()
-    .then(() => console.log('success'))
-    .catch(() => console.error('failed'));
+await list();

@@ -15,6 +15,4 @@ const read = async () => {
     })
 };
 
-read()
-    .then(() => console.log('success'))
-    .catch(() => console.error('failed'));
+await read()

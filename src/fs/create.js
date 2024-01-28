@@ -19,6 +19,4 @@ const create = async () => {
     })
 };
 
-create()
-    .then(() => console.log('success'))
-    .catch(() => console.error('failed'));
+await create();
