@@ -1,7 +1,7 @@
 import path from "path";
 import {release, version} from 'os';
 import { createServer as createServerHttp } from 'http';
-import {getPaths} from "../fs/helpers/get-paths.js";
+import {getPaths} from "../helpers/get-paths.js";
 import './files/c.js'
 import aJson from "./files/a.json" assert { type: "json" };
 import bJson from "./files/b.json" assert { type: "json" };

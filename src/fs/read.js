@@ -1,7 +1,7 @@
-import {getPaths} from "./helpers/get-paths.js";
+import {getPaths} from "../helpers/get-paths.js";
 import path from "path";
 import fs from "fs";
-import {throwError} from "./helpers/throw-error.js";
+import {throwError} from "../helpers/throw-error.js";
 
 const {__dirname} = getPaths(import.meta.url)
 
