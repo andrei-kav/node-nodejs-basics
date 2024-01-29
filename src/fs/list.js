@@ -12,7 +12,7 @@ const list = async () => {
         if (err) {
             throwError()
         }
-        console.log(files)
+        console.log(files.map(file => path.parse(file).name))
     })
 };
 
