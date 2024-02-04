@@ -1,10 +1,12 @@
 import {Transform} from 'stream'
+import {pipeline} from 'stream'
 
 const transform = async () => {
 
     const reverse = new Transform({
         transform(chunk, encoding, callback) {
             this.push(chunk.reverse())
+            this.push('\n');
             callback()
         }
     })

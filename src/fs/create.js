@@ -1,22 +1,16 @@
-import fs from 'fs'
+import fs from 'fs/promises'
 import path from "path"
-import {throwError} from "../helpers/throw-error.js";
-import {getPaths} from "../helpers/get-paths.js";
 
-const {__dirname} = getPaths(import.meta.url)
-
-const create = async () => {
-    const filePath = path.join(__dirname, 'files', 'fresh.txt')
-    fs.readFile(filePath, err => {
-        if (!err) {
-            // file already exists
-            throwError()
+export const create = async (workingDir, fileName) => {
+    const filePath = path.join(workingDir, fileName)
+    try {
+        await fs.readFile(filePath)
+        // throw error if file already exists
+        throw new Error('file already exists')
+    } catch (error) {
+        if (error.message === 'file already exists') {
+            throw error
         }
-        // file does not exist
-        fs.writeFile(filePath, 'I am fresh and young', err => {
-            if (err) throwError()
-        })
-    })
+        await fs.writeFile(filePath, '')
+    }
 };
-
-await create();
