@@ -1,8 +1,8 @@
 import path from 'path'
 import fs from "fs/promises";
-import {removeDoubleQuotes} from "../helpers/get-paths.js";
+import {getPathsFromString} from "../helpers/get-paths.js";
 export const resolveDir = async (current, to) => {
-    let updated = removeDoubleQuotes(to)
+    let updated = getPathsFromString(to)[0]
     if (!path.isAbsolute(updated)) {
         updated = path.join(current, updated)
     }

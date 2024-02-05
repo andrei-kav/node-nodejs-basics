@@ -9,32 +9,28 @@ export const getPaths = (url) => {
     }
 }
 
-export const removeDoubleQuotes = (path) => {
-    return path.replace(/"/g, '');
-}
+export const getPathsFromString = (paths) => {
+    const resolvedPaths = []
+    let pathsCopy = paths
 
-export const getPathsFromString = (path) => {
-    const paths = []
-    let pathCopy = path
-
-    while (pathCopy.length) {
-        let trimmed = pathCopy.trim();
+    while (pathsCopy && pathsCopy.length) {
+        let trimmed = pathsCopy.trim();
         if (trimmed.startsWith('"')) {
             const resolved = /"([^"]+(?="))"/g.exec(trimmed)
             if (resolved) {
-                paths.push(resolved[1])
-                pathCopy = trimmed.slice(resolved[0].length)
+                resolvedPaths.push(resolved[1])
+                pathsCopy = trimmed.slice(resolved[0].length)
             } else {
                 const item = trimmed.split(' ')[0]
-                paths.push(item)
-                pathCopy = trimmed.slice(item.length)
+                resolvedPaths.push(item)
+                pathsCopy = trimmed.slice(item.length)
             }
         } else {
             const item = trimmed.split(' ')[0]
-            paths.push(item)
-            pathCopy = trimmed.slice(item.length)
+            resolvedPaths.push(item)
+            pathsCopy = trimmed.slice(item.length)
         }
     }
 
-    return paths
+    return resolvedPaths
 }

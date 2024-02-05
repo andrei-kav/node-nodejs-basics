@@ -1,8 +1,9 @@
 import fs from 'fs/promises'
 import path from "path"
+import {getPathsFromString} from "../helpers/get-paths.js";
 
 export const create = async (workingDir, fileName) => {
-    const filePath = path.join(workingDir, fileName)
+    const filePath = path.join(workingDir, getPathsFromString(fileName)[0])
     try {
         await fs.readFile(filePath)
         // throw error if file already exists

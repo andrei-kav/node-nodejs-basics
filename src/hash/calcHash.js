@@ -1,18 +1,20 @@
 import {createHash} from 'crypto'
 import fs from 'fs'
-import {getPaths} from "../helpers/get-paths.js";
+import {getPathsFromString} from "../helpers/get-paths.js";
 import path from "path";
+import {pipeline} from "stream/promises";
 
-const {__dirname} = getPaths(import.meta.url)
+export const calculateHash = async (workingDir, pathToFile) => {
+    let filePath = getPathsFromString(pathToFile)[0]
+    if (!path.isAbsolute(filePath)) {
+        filePath = path.join(workingDir, filePath)
+    }
 
-const calculateHash = async () => {
-    const filePath = path.join(__dirname, 'files', 'fileToCalculateHashFor.txt')
-    const readStream= fs.createReadStream(filePath)
-    readStream.on('data', (data) => {
-        // creating sha256 hash of the content and transform it hex string
-        const hash = createHash('sha256').update(data).digest('hex')
-        console.log(hash)
-    })
+    const readStream = fs.createReadStream(filePath)
+
+    const hash = createHash('sha256')
+    hash.setEncoding('hex')
+    hash.on('finish', () => console.log(hash.read()))
+
+    await pipeline(readStream, hash)
 };
-
-await calculateHash();

@@ -10,13 +10,11 @@ import {remove} from "./delete.js";
 
 const sendResult = async () => {
     try {
-        console.log('fs-handler')
-
         let {workDir, operation} = workerData
-        const stringified = operation.toString().trim();
+        const stringified = operation.toString();
         const command = stringified.split(' ')[0]
         const args = stringified.slice(command.length).trim();
-        
+
         switch (command) {
             case 'cd':
                 workDir = await resolveDir(workDir, args)
@@ -49,7 +47,6 @@ const sendResult = async () => {
         }
         parentPort.postMessage({workDir})
     } catch (error) {
-        console.log('FS error', error)
         throw new Error('Operation failed')
     }
 };

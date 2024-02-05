@@ -1,18 +1,44 @@
-import {getPaths} from "../helpers/get-paths.js";
+import {getPathsFromString} from "../helpers/get-paths.js";
 import path from "path";
 import fs from "fs";
 import zlib from "zlib";
+import fsPromises from "fs/promises";
+import {pipeline} from "stream/promises";
 
-const {__dirname} = getPaths(import.meta.url)
+export const compress = async (workingDir, args) => {
+    const paths = getPathsFromString(args)
 
-const compress = async () => {
-    const toReadPath = path.join(__dirname, 'files', 'fileToCompress.txt')
-    const readStream = fs.createReadStream(toReadPath)
-    const toWritePath = path.join(__dirname, 'files', 'archive.gz')
-    const writeStream = fs.createWriteStream(toWritePath)
-    const gzip = zlib.createGzip()
-    // compress the txt file and write it into archive.gz
-    readStream.pipe(gzip).pipe(writeStream)
-};
+    let filePath = paths[0]
+    if (!path.isAbsolute(filePath)) {
+        filePath = path.join(workingDir, filePath)
+    }
 
-await compress();
+    let pathToNewDir = paths[1]
+    if (!path.isAbsolute(pathToNewDir)) {
+        pathToNewDir = path.join(workingDir, pathToNewDir)
+    }
+
+    const fileInfo = path.parse(filePath)
+    const fileName = fileInfo.name + fileInfo.ext + '.br'
+    const newFilePath = path.join(pathToNewDir, fileName)
+
+    // do some checks
+    // whether the file exists
+    // whether the new directory exists
+    // and there is no file with the same name
+    await fsPromises.readFile(filePath)
+    await fsPromises.readdir(pathToNewDir)
+    try {
+        await fsPromises.readFile(newFilePath)
+        // throw error if file already exists
+        throw new Error('file already exists')
+    } catch (error) {
+        if (error.message === 'file already exists') {
+            throw error
+        }
+    }
+
+    const brotli = zlib.createBrotliCompress();
+
+    await pipeline(fs.createReadStream(filePath), brotli, fs.createWriteStream(newFilePath))
+}

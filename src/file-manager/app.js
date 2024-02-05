@@ -4,6 +4,10 @@ import {homedir} from 'os'
 import {parseArgs} from "../cli/args.js";
 import {Worker} from "worker_threads";
 import {fsHandlerPath, isFSCommand} from "../fs/helpers.js";
+import {isOSCommand, osHandlerPath} from "../os/helpers.js";
+import {hashHandlerPath, isHashCommand} from "../hash/helpers.js";
+import {isZIPCommand, zipHandlerPath} from "../zip/helpers.js";
+import * as constants from "constants";
 
 const run = async () => {
 
@@ -16,11 +20,10 @@ const run = async () => {
 
     process.stdout.write(`Welcome to the File Manager, ${userName}!\n`)
     process.stdout.write(getLocationMessage())
-    // console.log(`Welcome to the File Manager, ${userName}!`)
 
     const parseInput = new Transform({
         transform(chunk, encoding, callback) {
-            const stringified = chunk.toString().trim();
+            const stringified = chunk.toString().trim()
             if (stringified === '.exit') {
                 process.exit(0);
             }
@@ -31,25 +34,37 @@ const run = async () => {
 
     const handle = new Transform({
         transform(chunk, encoding, callback) {
-            const stringified = chunk.toString().trim();
-            const command = stringified.split(' ')[0];
+            const stringified = chunk.toString();
+            let handlerPath = null
 
-            if (isFSCommand(command)) {
-                const worker = new Worker(fsHandlerPath(), {workerData: {workDir: workDir, operation: stringified}})
-                worker.on('message', (result) => {
-                    workDir = result.workDir
-                    // emitFinish()
-                    this.push(getLocationMessage());
-                }).on('error', (err) => {
-                    console.log('woeker error', err)
-                    this.push('Operation failed\n');
-                    this.push(getLocationMessage());
-                    // emitFail()
-                })
+            if (isFSCommand(stringified)) {
+                handlerPath = fsHandlerPath()
+            } else if (isOSCommand(stringified)) {
+                handlerPath = osHandlerPath()
+            } else if (isHashCommand(stringified)) {
+                handlerPath = hashHandlerPath()
+            } else if (isZIPCommand(stringified)) {
+                handlerPath = zipHandlerPath()
             } else {
                 this.push('Invalid input\n');
                 this.push(getLocationMessage());
             }
+
+            if (handlerPath) {
+                // do calculation
+                // main part!
+                const worker = new Worker(handlerPath, {workerData: {workDir: workDir, operation: stringified}})
+                worker.on('message', (result) => {
+                    if (result && result.workDir) {
+                        workDir = result.workDir
+                    }
+                    this.push(getLocationMessage());
+                }).on('error', (err) => {
+                    this.push('Operation failed\n');
+                    this.push(getLocationMessage());
+                })
+            }
+
             callback()
         }
     })
@@ -61,25 +76,16 @@ const run = async () => {
             console.log('finish')
         }
     });
+
+    // handle process finish
     process
         .on('exit', () => {
-            console.log("STREAM EXITED - TRANSFORM");
-            console.log(`Thank you for using File Manager, ${userName}, goodbye!`);
+            process.stdout.write(`Thank you for using File Manager, ${userName}, goodbye!\n`);
         })
         .on('SIGINT', () => {
             // after ctrl + C clicked
-            console.log("STREAM SIGINT - TRANSFORM");
             process.exit(0)
         })
-        // .on('operation-failed', () => {
-        //     console.log("STREAM operation-failed - TRANSFORM");
-        //     console.log(`Operation failed`)
-        //     emitFinish()
-        // })
-        // .on('operation-finished', () => {
-        //     console.log("STREAM operation-finished - TRANSFORM");
-        //     console.log(`You are currently in ${workDir}`)
-        // })
 };
 
 await run();

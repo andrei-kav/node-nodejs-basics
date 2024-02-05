@@ -32,14 +32,10 @@ export const copy = async (workingDir, args) => {
         // throw error if file already exists
         throw new Error('file already exists')
     } catch (error) {
-        // console.log(error)
-        // console.log('error.message', error.message)
         if (error.message === 'file already exists') {
             throw error
         }
     }
-    
-    // const readable = fs.createReadStream(filePath)
-    // const writeable = fs.createWriteStream(newFilePath)
+
     await pipeline(fs.createReadStream(filePath), fs.createWriteStream(newFilePath))
 };
