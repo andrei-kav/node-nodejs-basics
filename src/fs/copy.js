@@ -18,11 +18,14 @@ export const copy = async (workingDir, args) => {
     }
     
     const fileInfo = path.parse(filePath)
-    const fileName = fileInfo.name + (fileInfo.ext ? `.${fileInfo.ext}` : '')
+    const fileName = fileInfo.name + (fileInfo.ext ? fileInfo.ext : '')
     const newFilePath = path.join(pathToNewDir, fileName)
     
-    // check whether new directory exists
+    // do some checks
+    // whether the file exists
+    // whether the new directory exists
     // and there is no file with the same name
+    await fsPromises.readFile(filePath)
     await fsPromises.readdir(pathToNewDir)
     try {
         await fsPromises.readFile(newFilePath)
@@ -36,5 +39,7 @@ export const copy = async (workingDir, args) => {
         }
     }
     
+    // const readable = fs.createReadStream(filePath)
+    // const writeable = fs.createWriteStream(newFilePath)
     await pipeline(fs.createReadStream(filePath), fs.createWriteStream(newFilePath))
 };
