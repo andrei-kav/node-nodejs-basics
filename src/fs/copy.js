@@ -18,7 +18,7 @@ export const copy = async (workingDir, args) => {
     }
     
     const fileInfo = path.parse(filePath)
-    const fileName = fileInfo.name + (fileInfo.ext ? fileInfo.ext : '')
+    const fileName = fileInfo.name + fileInfo.ext
     const newFilePath = path.join(pathToNewDir, fileName)
     
     // do some checks
