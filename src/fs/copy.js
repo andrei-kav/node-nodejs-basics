@@ -1,30 +1,40 @@
 import fs from 'fs'
+import fsPromises from 'fs/promises'
 import path from "path"
-import {throwError} from "../helpers/throw-error.js"
-import {getPaths} from "../helpers/get-paths.js"
+import {pipeline} from "stream/promises"
+import {getPathsFromString} from "../helpers/get-paths.js"
 
-const {__dirname} = getPaths(import.meta.url)
+export const copy = async (workingDir, args) => {
+    const paths = getPathsFromString(args)
+    
+    let filePath = paths[0]
+    if (!path.isAbsolute(filePath)) {
+        filePath = path.join(workingDir, filePath)
+    }
 
-const copy = async () => {
-    const filesCopyPath = path.join(__dirname, 'files_copy')
-    const filesPath = path.join(__dirname, 'files')
-
-    fs.readdir(filesCopyPath, err => {
-        if (!err) {
-            // already exist
-            throwError()
+    let pathToNewDir = paths[1]
+    if (!path.isAbsolute(pathToNewDir)) {
+        pathToNewDir = path.join(workingDir, pathToNewDir)
+    }
+    
+    const fileInfo = path.parse(filePath)
+    const fileName = fileInfo.name + (fileInfo.ext ? `.${fileInfo.ext}` : '')
+    const newFilePath = path.join(pathToNewDir, fileName)
+    
+    // check whether new directory exists
+    // and there is no file with the same name
+    await fsPromises.readdir(pathToNewDir)
+    try {
+        await fsPromises.readFile(newFilePath)
+        // throw error if file already exists
+        throw new Error('file already exists')
+    } catch (error) {
+        // console.log(error)
+        // console.log('error.message', error.message)
+        if (error.message === 'file already exists') {
+            throw error
         }
-        // folder does not exist
-        fs.readdir(filesPath, err => {
-            if (err) {
-                // folder does not exist
-                throwError()
-            }
-            fs.cp(filesPath, filesCopyPath, { recursive: true }, err => {
-                if (err) throwError()
-            })
-        })
-    })
+    }
+    
+    await pipeline(fs.createReadStream(filePath), fs.createWriteStream(newFilePath))
 };
-
-await copy();

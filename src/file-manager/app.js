@@ -5,9 +5,6 @@ import {parseArgs} from "../cli/args.js";
 import {Worker} from "worker_threads";
 import {fsHandlerPath, isFSCommand} from "../fs/helpers.js";
 
-const emitFail = () => process.emit('operation-failed')
-const emitFinish = () => process.emit('operation-finished')
-
 const run = async () => {
 
     const args = parseArgs()

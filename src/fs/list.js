@@ -1,8 +1,5 @@
 import fs from "fs/promises"
 import path from "path"
-import {Readable} from 'stream'
-import {pipeline} from "stream/promises"
-import * as Console from "console";
 
 export const list = async (workDir) => {
 
@@ -10,10 +7,10 @@ export const list = async (workDir) => {
         return values
             .filter(value => value.type === type)
             .sort((a, b) => {
-                if (a.name < b.name) {
+                if (a.name.toLowerCase() < b.name.toLowerCase()) {
                     return -1;
                 }
-                if (a.name > b.name) {
+                if (a.name.toLowerCase() > b.name.toLowerCase()) {
                     return 1;
                 }
                 return 0;
@@ -49,10 +46,4 @@ export const list = async (workDir) => {
 
     await new Promise((resolve) => setTimeout(resolve, 0))
         .then(() => console.table(list));
-
-    // const rs = new Readable()
-    // rs.push(list)
-    // rs.push(null);
-    // const conso = new Console(process.stdout).table
-    // await pipeline(rs, conso)
 };

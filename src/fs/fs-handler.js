@@ -5,6 +5,7 @@ import {list} from "./list.js";
 import {read} from "./read.js";
 import {create} from "./create.js";
 import {rename} from "./rename.js";
+import {copy} from "./copy.js";
 
 const sendResult = async () => {
     try {
@@ -14,6 +15,7 @@ const sendResult = async () => {
         const stringified = operation.toString().trim();
         const command = stringified.split(' ')[0]
         const args = stringified.slice(command.length).trim();
+        
         switch (command) {
             case 'cd':
                 workDir = await resolveDir(workDir, args)
@@ -33,9 +35,13 @@ const sendResult = async () => {
             case 'rn':
                 await rename(workDir, args)
                 break
+            case 'cp':
+                await copy(workDir, args)
+                break
         }
         parentPort.postMessage({workDir})
-    } catch {
+    } catch (error) {
+        console.log('FS error', error)
         throw new Error('Operation failed')
     }
 };
