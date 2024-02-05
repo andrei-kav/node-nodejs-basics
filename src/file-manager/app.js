@@ -7,7 +7,6 @@ import {fsHandlerPath, isFSCommand} from "../fs/helpers.js";
 import {isOSCommand, osHandlerPath} from "../os/helpers.js";
 import {hashHandlerPath, isHashCommand} from "../hash/helpers.js";
 import {isZIPCommand, zipHandlerPath} from "../zip/helpers.js";
-import * as constants from "constants";
 
 const run = async () => {
 
