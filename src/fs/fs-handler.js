@@ -6,6 +6,7 @@ import {read} from "./read.js";
 import {create} from "./create.js";
 import {rename} from "./rename.js";
 import {copy} from "./copy.js";
+import {remove} from "./delete.js";
 
 const sendResult = async () => {
     try {
@@ -37,6 +38,13 @@ const sendResult = async () => {
                 break
             case 'cp':
                 await copy(workDir, args)
+                break
+            case 'rm':
+                await remove(workDir, args)
+                break
+            case 'mv':
+                await copy(workDir, args)
+                await remove(workDir, args)
                 break
         }
         parentPort.postMessage({workDir})

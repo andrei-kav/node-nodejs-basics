@@ -40,7 +40,8 @@ const run = async () => {
                     workDir = result.workDir
                     // emitFinish()
                     this.push(getLocationMessage());
-                }).on('error', () => {
+                }).on('error', (err) => {
+                    console.log('woeker error', err)
                     this.push('Operation failed\n');
                     this.push(getLocationMessage());
                     // emitFail()
