@@ -1,21 +1,11 @@
-import {getPaths} from "../helpers/get-paths.js";
-import path from "path";
-import fs from "fs";
-import {throwError} from "../helpers/throw-error.js";
+import path from "path"
+import fsPromises from "fs/promises"
+import {getPathsFromString} from "../helpers/get-paths.js";
 
-const {__dirname} = getPaths(import.meta.url)
-
-const remove = async () => {
-    const filePath = path.join(__dirname, 'files', 'fileToRemove.txt')
-    fs.readFile(filePath, err => {
-        if (err) {
-            // file already removed
-            throwError()
-        }
-        fs.rm(filePath, err => {
-            if (err) throwError()
-        })
-    })
+export const remove = async (workingDir, pathToFile) => {
+    let filePath = getPathsFromString(pathToFile)[0]
+    if (!path.isAbsolute(filePath)) {
+        filePath = path.join(workingDir, filePath)
+    }
+    await fsPromises.rm(filePath)
 };
-
-await remove();

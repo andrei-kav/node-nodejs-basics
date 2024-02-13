@@ -1,19 +1,49 @@
-import {getPaths} from "../helpers/get-paths.js";
-import path from "path";
-import fs from "fs";
-import {throwError} from "../helpers/throw-error.js";
+import fs from "fs/promises"
+import path from "path"
 
-const {__dirname} = getPaths(import.meta.url)
+export const list = async (workDir) => {
 
-const list = async () => {
-    const dirPath = path.join(__dirname, 'files')
+    const getSet = (values, type) => {
+        return values
+            .filter(value => value.type === type)
+            .sort((a, b) => {
+                if (a.name.toLowerCase() < b.name.toLowerCase()) {
+                    return -1;
+                }
+                if (a.name.toLowerCase() > b.name.toLowerCase()) {
+                    return 1;
+                }
+                return 0;
+            })
+    }
 
-    fs.readdir(dirPath, (err, files) => {
-        if (err) {
-            throwError()
-        }
-        console.log(files.map(file => path.parse(file).name))
-    })
+    const list = await fs.readdir(workDir)
+        .then(files => {
+            return Promise.all(files.map(async file => {
+                let value = {
+                    name: file,
+                    type: 'unknown'
+                }
+                try {
+                    const info = await fs.lstat(path.join(workDir, file))
+                    value = {
+                        name: file,
+                        type: info.isFile() ? 'file' : 'directory'
+                    }
+                } catch {
+                    // do not anything
+                }
+                return value
+            }))
+        })
+        .then(parsed => {
+            return [
+                ...getSet(parsed, 'directory'),
+                ...getSet(parsed, 'file'),
+                ...getSet(parsed, 'unknown')
+            ]
+        })
+
+    await new Promise((resolve) => setTimeout(resolve, 0))
+        .then(() => console.table(list));
 };
-
-await list();

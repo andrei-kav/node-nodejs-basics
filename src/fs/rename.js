@@ -1,29 +1,28 @@
 import path from "path"
-import fs from 'fs'
-import {getPaths} from "../helpers/get-paths.js"
-import {throwError} from "../helpers/throw-error.js";
+import fs from 'fs/promises'
+import {getPathsFromString} from "../helpers/get-paths.js"
 
-const {__dirname} = getPaths(import.meta.url)
+export const rename = async (workingDir, args) => {
+    const paths = getPathsFromString(args)
 
-const rename = async () => {
-    const filePath = path.join(__dirname, 'files', 'wrongFilename.txt')
-    const newFilePath = path.join(__dirname, 'files', 'properFilename.md')
+    let filePath = paths[0]
+    let newFileName = paths[1]
+    if (!path.isAbsolute(filePath)) {
+        filePath = path.join(workingDir, filePath)
+    }
 
-    fs.readFile(filePath, err => {
-        if (err) {
-            // file does not exist
-            throwError()
+    const newFilePath = path.join(path.parse(filePath).dir, newFileName)
+
+    await fs.readFile(filePath)
+    try {
+        await fs.readFile(newFilePath)
+        // throw error if file already exists
+        throw new Error('file already exists')
+    } catch (error) {
+        if (error.message === 'file already exists') {
+            throw error
         }
-        fs.readFile(newFilePath, err => {
-            if (!err) {
-                // file already exists
-                throwError()
-            }
-            fs.rename(filePath, newFilePath, err => {
-                if (err) throwError()
-            })
-        })
-    })
-};
+    }
 
-await rename();
+    await fs.rename(filePath, newFilePath)
+};

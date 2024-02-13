@@ -1,18 +1,12 @@
-import {getPaths} from "../helpers/get-paths.js";
-import path from "path";
-import fs from "fs";
-import {throwError} from "../helpers/throw-error.js";
+import path from "path"
+import fs from "fs"
+import {pipeline} from "stream/promises"
+import {getPathsFromString} from "../helpers/get-paths.js";
 
-const {__dirname} = getPaths(import.meta.url)
-
-const read = async () => {
-    const filePath = path.join(__dirname, 'files', 'fileToRead.txt')
-    fs.readFile(filePath, {encoding: 'utf8'}, (err, data) => {
-        if (err) {
-            throwError()
-        }
-        console.log(data)
-    })
+export const read = async (workingDir, file) => {
+    let pathToFile = getPathsFromString(file)[0]
+    if (!path.isAbsolute(file)) {
+        pathToFile = path.join(workingDir, file)
+    }
+    await pipeline(fs.createReadStream(pathToFile), process.stdout)
 };
-
-await read()
