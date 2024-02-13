@@ -26,9 +26,14 @@ export const list = async (workDir) => {
                 }
                 try {
                     const info = await fs.lstat(path.join(workDir, file))
+                    const type = info.isFile()
+                      ? 'file'
+                      : info.isDirectory()
+                        ? 'directory'
+                        : 'unknown';
                     value = {
                         name: file,
-                        type: info.isFile() ? 'file' : 'directory'
+                        type: type
                     }
                 } catch {
                     // do not anything
